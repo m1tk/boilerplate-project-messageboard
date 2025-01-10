@@ -19,7 +19,8 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'"],
-      scriptSrc: ["'self'"]
+      scriptSrc: ["'self'", "code.jquery.com"],
+      imgSrc: ["cdn.freecodecamp.org"]
     }
   },
   referrerPolicy: { policy: "same-origin" },
