@@ -36,6 +36,8 @@ db.serialize(() => {
     delete_password text not null,
     FOREIGN KEY (thread, board) REFERENCES thread(_id, board)
   )`);
+
+  db.run(`INSERT INTO board VALUES("general") ON CONFLICT(name) DO NOTHING`)
 });
 
 module.exports = db;
