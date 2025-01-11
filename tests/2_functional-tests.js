@@ -38,7 +38,7 @@ suite('Functional Tests', function() {
         .send({ thread_id: del_thread_id })
         .end(function(err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.text, "Thread was reported");
+            assert.equal(res.text, "reported");
             done();
         });
     });
@@ -62,7 +62,7 @@ suite('Functional Tests', function() {
         .send({ thread_id: del_thread_id, delete_password: "pasw" })
         .end(function(err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.text, "Thread deleted");
+            assert.equal(res.text, "success");
             done();
         });
     });
@@ -124,7 +124,7 @@ suite('Functional Tests', function() {
         .send({ thread_id: del_thread_id, reply_id: rep_id, delete_password: "pasw2" })
         .end(function(err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.text, "Reply deleted");
+            assert.equal(res.text, "success");
             done();
         });
     });
@@ -136,7 +136,7 @@ suite('Functional Tests', function() {
         .send({ thread_id: del_thread_id, reply_id: rep_id })
         .end(function(err, res) {
             assert.equal(res.status, 200);
-            assert.equal(res.text, "Reply reported");
+            assert.equal(res.text, "reported");
             done();
         });
     });

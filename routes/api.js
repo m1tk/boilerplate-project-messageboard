@@ -117,7 +117,7 @@ module.exports = function (app) {
       { $pull: { thread: { _id: new ObjectId(thread_id), delete_password: delete_password } } }
     );
     if (thread.modifiedCount > 0) {
-      res.send("Thread deleted");
+      res.send("success");
     } else {
       res.send("Invalid delete password");
     }
@@ -137,7 +137,7 @@ module.exports = function (app) {
       { $set: { 'thread.$.reported': true } }
     );
     if (thread.modifiedCount > 0) {
-      res.send("Thread was reported");
+      res.send("reported");
     } else {
       res.status(404).send("Thread not found");
     }
@@ -233,7 +233,7 @@ module.exports = function (app) {
       }
     );
     if (thread.modifiedCount > 0) {
-      res.send("Reply deleted");
+      res.send("success");
     } else {
       res.send("Invalid delete password");
     }
@@ -262,7 +262,7 @@ module.exports = function (app) {
       }
     );
     if (thread.modifiedCount > 0) {
-      res.send("Reply reported");
+      res.send("reported");
     } else {
       res.status(404).send("Reply not found");
     }
