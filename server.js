@@ -13,13 +13,20 @@ const app = express();
 
 app.use(helmet({
   frameguard: {
-    action: 'deny'
+    action: 'sameorigin'
   },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'"],
-      scriptSrc: ["'self'", "code.jquery.com"],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'" // We have inlined styles, nothing to do
+      ],
+      scriptSrc: [
+        "'self'",
+        "code.jquery.com",
+        "'unsafe-inline'" // We have inlined scripts too...
+      ],
       imgSrc: ["cdn.freecodecamp.org"]
     }
   },
