@@ -156,6 +156,7 @@ module.exports = function (app) {
     const board = req.params.board;
     const { thread_id, text, delete_password } = req.body;
     
+    const date   = new Date();
     const thread = await modelStore.findOneAndUpdate(
       { board: board, 'thread._id': new ObjectId(thread_id) },
       {
@@ -163,9 +164,10 @@ module.exports = function (app) {
           'thread.$.reply': {
             text: text,
             delete_password: delete_password,
+            created_on: date
           }
         },
-        $set: { bumped_on: new Date() }
+        $set: { bumped_on: date }
       }
     );
     if (!thread || thread.modifiedCount <= 0) {
