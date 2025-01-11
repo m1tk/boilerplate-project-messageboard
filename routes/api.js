@@ -65,7 +65,7 @@ module.exports = function (app) {
           }
         }
       },
-      { new: true }
+      { upsert: true, new: true, runValidators: true }
     );
 
     res.redirect(`/b/${board}/`);
