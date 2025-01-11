@@ -3,7 +3,18 @@ const { body, validationResult, query } = require('express-validator');
 const mongoose = require('mongoose');
 const { ObjectId } = require("mongodb");
 
-mongoose.connect(process.env.DB_URI);
+mongoose.connect(
+  process.env.DB_URI,
+  {
+    serverApi: {
+      version: '1',
+      strict: true,
+      deprecationErrors: true
+    },
+    connectTimeoutMS: 60000,
+    socketTimeoutMS: 60000,
+    timeoutMS: 50000
+  });
 
 const schema = new mongoose.Schema({
   board: { type: String, required: true, unique: true },
@@ -71,24 +82,20 @@ module.exports = function (app) {
     .limit(10);
     
     threads.forEach((thread) => {
-      thread.thread_id = thread._id;
-      delete thread._id;
       delete thread.delete_password;
       delete thread.reported;
+      thread.replycount = thread.reply.length;
 
       thread.reply = thread.reply
         .sort((e, v) => v.created_on - e.created_on)
         .slice(-3)
         .map((reply) => {
-          reply.reply_id = reply._id;
-          delete reply._id;
           delete reply.delete_password;
           delete reply.reported;
           return reply;
         });
 
-      thread.replies    = thread.reply;
-      thread.replycount = thread.replies.length;
+      thread.replies = thread.reply;
       delete thread.reply;
     });
 
@@ -115,7 +122,13 @@ module.exports = function (app) {
       res.send("Invalid delete password");
     }
   })
-  .put(async (req, res) => {
+  .put([
+      body('thread_id').isString().trim().escape().isLength(24)
+    ], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send(errors);
+    }
     const board = req.params.board;
     const { thread_id } = req.body;
     
@@ -169,31 +182,26 @@ module.exports = function (app) {
     const { thread_id } = req.query;
 
     const threads = await modelStore.aggregate([
-      { $match: { board: board, 'thread._id': new ObjectId(thread_id) } },
+      { $match: { board: board } },
       { $unwind: "$thread" },
-      { $sort: { "thread.bumped_on": -1 } },
+      { $match: { "thread._id": new ObjectId(thread_id) } },
       { $replaceRoot: { newRoot: "$thread" } }
-    ])
-    .limit(1);
+    ]);
     
     threads.forEach((thread) => {
-      thread.thread_id = thread._id;
-      delete thread._id;
       delete thread.delete_password;
       delete thread.reported;
+      thread.replycount = thread.reply.length;
 
       thread.reply = thread.reply
         .sort((e, v) => v.created_on - e.created_on)
         .map((reply) => {
-          reply.reply_id = reply._id;
-          delete reply._id;
           delete reply.delete_password;
           delete reply.reported;
           return reply;
         });
 
-      thread.replies    = thread.reply;
-      thread.replycount = thread.replies.length;
+      thread.replies = thread.reply;
       delete thread.reply;
     });
 
@@ -228,6 +236,35 @@ module.exports = function (app) {
       res.send("Reply deleted");
     } else {
       res.send("Invalid delete password");
+    }
+  })
+  .put([
+    body('thread_id').isString().trim().escape().isLength(24),
+    body('reply_id').isString().trim().escape().isLength(24)
+  ], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).send(errors);
+    }
+    const board = req.params.board;
+    const { thread_id, reply_id } = req.body;
+    
+    const thread = await modelStore.updateOne(
+      { board: board },
+      { $set: { 'thread.$[i].reply.$[r].reported': true } },
+      {
+        arrayFilters: [
+          { 'i._id': new ObjectId(thread_id) },
+          {
+            'r._id': new ObjectId(reply_id)
+          }
+        ]
+      }
+    );
+    if (thread.modifiedCount > 0) {
+      res.send("Reply reported");
+    } else {
+      res.status(404).send("Reply not found");
     }
   });
 

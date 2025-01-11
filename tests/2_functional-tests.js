@@ -26,7 +26,7 @@ suite('Functional Tests', function() {
             assert.isArray(res.body);
             assert.isTrue(res.body.length <= 10);
             assert.isTrue(res.body[0].replies <= 3);
-            del_thread_id = res.body[0].thread_id;
+            del_thread_id = res.body[0]._id;
             done();
         });
     });
@@ -80,7 +80,7 @@ suite('Functional Tests', function() {
             .end(function(err, res) {
                 assert.equal(res.status, 200);
                 assert.isArray(res.body);
-                rep_thread_id = res.body[0].thread_id;
+                rep_thread_id = res.body[0]._id;
                 chai.request(server)
                 .post('/api/replies/general')
                 .type('form')
@@ -100,7 +100,7 @@ suite('Functional Tests', function() {
         .end(function(err, res) {
             assert.equal(res.status, 200);
             assert.equal(res.body.replies.length, 1);
-            rep_id = res.body.replies[0].reply_id;
+            rep_id = res.body.replies[0]._id;
             done();
         });
     });
@@ -125,6 +125,18 @@ suite('Functional Tests', function() {
         .end(function(err, res) {
             assert.equal(res.status, 200);
             assert.equal(res.text, "Reply deleted");
+            done();
+        });
+    });
+
+    test('Reporting a reply: PUT request to /api/replies/{board}', function(done) {
+        chai.request(server)
+        .put('/api/replies/general')
+        .type('form')
+        .send({ thread_id: del_thread_id, reply_id: rep_id })
+        .end(function(err, res) {
+            assert.equal(res.status, 200);
+            assert.equal(res.text, "Reply reported");
             done();
         });
     });
