@@ -167,7 +167,7 @@ module.exports = function (app) {
             created_on: date
           }
         },
-        $set: { 'thread.bumped_on': date }
+        $set: { 'thread.$.bumped_on': date }
       }
     );
     if (!thread || thread.modifiedCount <= 0) {
