@@ -31,7 +31,9 @@ app.use(helmet({
     }
   },
   referrerPolicy: { policy: "same-origin" },
-  dnsPrefetchControl: false,
+  dnsPrefetchControl: {
+    allow: false,
+  },
   noCache: true
 }));
 
