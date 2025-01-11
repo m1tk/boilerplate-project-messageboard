@@ -119,7 +119,7 @@ module.exports = function (app) {
     if (thread.modifiedCount > 0) {
       res.send("success");
     } else {
-      res.send("Invalid delete password");
+      res.send("incorrect password");
     }
   })
   .put([
@@ -235,7 +235,7 @@ module.exports = function (app) {
     if (thread.modifiedCount > 0) {
       res.send("success");
     } else {
-      res.send("Invalid delete password");
+      res.send("incorrect password");
     }
   })
   .put([
